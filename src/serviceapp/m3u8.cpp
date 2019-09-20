@@ -146,7 +146,7 @@ int M3U8VariantsExplorer::getVariantsFromMasterUrl(const std::string& url, Heade
     request.append("Host: ").append(purl.host());
     if (purl.port() > 0)
     {
-        request.append(":").append(std::to_string(purl.port()));
+        request.append(":").append(to_string(purl.port()));
     }
     request.append("\r\n");
     request.append("User-Agent: ").append(userAgent).append("\r\n");
