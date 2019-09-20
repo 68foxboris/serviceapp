@@ -8,6 +8,15 @@
 #include "wrappers.h"
 #include "common.h"
 
+//to_string replacement
+template <typename T>
+std::string to_string(const T& value)
+{
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
+}
+
 struct M3U8StreamInfo
 {
     std::string url;
