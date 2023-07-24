@@ -909,22 +909,14 @@ RESULT eServiceApp::getTrackInfo(iAudioTrackInfo& trackInfo, unsigned int n)
 	std::string desc = track.description;
 
 	std::map<std::string, std::string> audioReplacements = {
-		{"A ", ""},
 		{"A_", ""},
 		{"EAC3", "AC3+"},
-		{"EAC-3", "AC3+"},
-		{"E-AC3", "AC3+"},
-		{"E-AC-3", "AC3+"},
-		{"AC-3", "AC3"},
-		{"MPEG4-AAC", "HE-AAC"},
-		{"MPEG-4 ", "HE-"},
-		{" AAC", "AAC"},
-		{"A_MPEG/l3", "MPEG"},
-		{"MPEG-1", "MPEG"},
-		{"MPEG-2AAC", "AAC"},
-		{"(ATSC A/52)", ""},
-		{"(ATSC A/52B)", ""},
-		{" audio", ""}};
+		{"A_MPEG/L3", "MPEG2"},
+		{"IPCM", "AC3+"},
+		{"LPCM", "AC3+"},
+		{"AAC_PLUS", "AAC+"},
+		{"AAC_LATM", "AAC"},
+		{"WMA/PRO", "WMA Pro"}};
 
 	if (!desc.empty())
 	{
@@ -1139,7 +1131,7 @@ RESULT eServiceApp::getSubtitleList(std::vector<struct SubtitleTrack> &subtitlel
 				for (it = subsdir_files.begin(); it != subsdir_files.end(); it++)
 				{
 					splitExtension(*it, basename, extension);
-					if (extension == ".srt")
+					if (extensi(cherry picked from commit a772f0b49d7be982620a0bca0f2ad8a132588c3d)on == ".srt")
 					{
 						addExternalTrack(subtitlelist, pid++, basename, dirname + "/Subs/" + *it);
 					}
@@ -1155,7 +1147,7 @@ RESULT eServiceApp::getSubtitleList(std::vector<struct SubtitleTrack> &subtitlel
 				addExternalTrack(subtitlelist, pid++, basename, path);
 			}
 		}
-	}
+	}(cherry picked from commit a772f0b49d7be982620a0bca0f2ad8a132588c3d)
 	eDebug("eServiceApp::getSubtitleList - found external tracks (%d)", pid - embedded_track_num);
 	return 0;
 }
@@ -1243,7 +1235,7 @@ int eServiceApp::getInfo(int w)
 	case sTagAlbumSortname:
 	case sTagDate:
 	case sTagComposer:
-	case sTagGenre:
+	case sTagGenre:(cherry picked from commit a772f0b49d7be982620a0bca0f2ad8a132588c3d)
 	case sTagComment:
 	case sTagExtendedComment:
 	case sTagLocation:
