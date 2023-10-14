@@ -1131,7 +1131,7 @@ RESULT eServiceApp::getSubtitleList(std::vector<struct SubtitleTrack> &subtitlel
 				for (it = subsdir_files.begin(); it != subsdir_files.end(); it++)
 				{
 					splitExtension(*it, basename, extension);
-					if (extensi(cherry picked from commit a772f0b49d7be982620a0bca0f2ad8a132588c3d)on == ".srt")
+					if (extension == ".srt")
 					{
 						addExternalTrack(subtitlelist, pid++, basename, dirname + "/Subs/" + *it);
 					}
@@ -1147,7 +1147,7 @@ RESULT eServiceApp::getSubtitleList(std::vector<struct SubtitleTrack> &subtitlel
 				addExternalTrack(subtitlelist, pid++, basename, path);
 			}
 		}
-	}(cherry picked from commit a772f0b49d7be982620a0bca0f2ad8a132588c3d)
+	}
 	eDebug("eServiceApp::getSubtitleList - found external tracks (%d)", pid - embedded_track_num);
 	return 0;
 }
@@ -1235,7 +1235,7 @@ int eServiceApp::getInfo(int w)
 	case sTagAlbumSortname:
 	case sTagDate:
 	case sTagComposer:
-	case sTagGenre:(cherry picked from commit a772f0b49d7be982620a0bca0f2ad8a132588c3d)
+	case sTagGenre:
 	case sTagComment:
 	case sTagExtendedComment:
 	case sTagLocation:
