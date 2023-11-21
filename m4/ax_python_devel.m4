@@ -1,10 +1,10 @@
 # ===========================================================================
-#      http://www.gnu.org/software/autoconf-archive/ax_python_devel.html
+#     https://www.gnu.org/software/autoconf-archive/ax_python_devel.html
 # ===========================================================================
 #
 # SYNOPSIS
 #
-#   AX_PYTHON_DEVEL([version])
+#   AX_PYTHON_DEVEL([version[,optional]])
 #
 # DESCRIPTION
 #
@@ -22,6 +22,11 @@
 #   match, and pay special attention to the single quotes surrounding the
 #   version number. Don't use "PYTHON_VERSION" for this: that environment
 #   variable is declared as precious and thus reserved for the end-user.
+#
+#   By default this will fail if it does not detect a development version of
+#   python.  If you want it to continue, set optional to true, like
+#   AX_PYTHON_DEVEL([], [true]).  The ax_python_devel_found variable will be
+#   "no" if it fails.
 #
 #   This macro should work for all versions of Python >= 2.1.0. As an end
 #   user, you can disable the check for the python version by setting the
@@ -52,7 +57,7 @@
 #   Public License for more details.
 #
 #   You should have received a copy of the GNU General Public License along
-#   with this program. If not, see <http://www.gnu.org/licenses/>.
+#   with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 #   As a special exception, the respective Autoconf Macro's copyright owner
 #   gives unlimited permission to copy, distribute and modify the configure
@@ -67,10 +72,18 @@
 #   modified version of the Autoconf Macro, you may extend this special
 #   exception to the GPL to apply to your modified version as well.
 
-#serial 18
+#serial 36 --------------Updated to cross compile for OE-Alliance Enigma2 git builds
 
 AU_ALIAS([AC_PYTHON_DEVEL], [AX_PYTHON_DEVEL])
 AC_DEFUN([AX_PYTHON_DEVEL],[
+	# Get whether it's optional
+	if test -z "$2"; then
+	   ax_python_devel_optional=false
+	else
+	   ax_python_devel_optional=$2
+	fi
+	ax_python_devel_found=yes
+
 	#
 	# Allow the use of a (user set) custom python version
 	#
@@ -81,21 +94,26 @@ AC_DEFUN([AX_PYTHON_DEVEL],[
 
 	AC_PATH_PROG([PYTHON],[python[$PYTHON_VERSION]])
 	if test -z "$PYTHON"; then
-	   AC_MSG_ERROR([Cannot find python$PYTHON_VERSION in your system path])
+	   AC_MSG_WARN([Cannot find python$PYTHON_VERSION in your system path])
+	   if ! $ax_python_devel_optional; then
+	      AC_MSG_ERROR([Giving up, python development not available])
+	   fi
+	   ax_python_devel_found=no
 	   PYTHON_VERSION=""
 	fi
 
-	#
-	# Check for a version of Python >= 2.1.0
-	#
-	AC_MSG_CHECKING([for a version of Python >= '2.1.0'])
-	ac_supports_python_ver=`$PYTHON -c "import sys; \
+	if test $ax_python_devel_found = yes; then
+	   #
+	   # Check for a version of Python >= 2.1.0
+	   #
+	   AC_MSG_CHECKING([for a version of Python >= '2.1.0'])
+	   ac_supports_python_ver=`$PYTHON -c "import sys; \
 		ver = sys.version.split ()[[0]]; \
 		print (ver >= '2.1.0')"`
-	if test "$ac_supports_python_ver" != "True"; then
+	   if test "$ac_supports_python_ver" != "True"; then
 		if test -z "$PYTHON_NOVERSIONCHECK"; then
 			AC_MSG_RESULT([no])
-			AC_MSG_FAILURE([
+			AC_MSG_WARN([
 This version of the AC@&t@_PYTHON_DEVEL macro
 doesn't work properly with versions of Python before
 2.1.0. You may need to re-run configure, setting the
@@ -104,26 +122,57 @@ PYTHON_EXTRA_LIBS and PYTHON_EXTRA_LDFLAGS by hand.
 Moreover, to disable this check, set PYTHON_NOVERSIONCHECK
 to something else than an empty string.
 ])
+			if ! $ax_python_devel_optional; then
+			   AC_MSG_FAILURE([Giving up])
+			fi
+			ax_python_devel_found=no
+			PYTHON_VERSION=""
 		else
 			AC_MSG_RESULT([skip at user request])
 		fi
-	else
+	   else
 		AC_MSG_RESULT([yes])
+	   fi
 	fi
 
-	#
-	# if the macro parameter ``version'' is set, honour it
-	#
-	if test -n "$1"; then
+	if test $ax_python_devel_found = yes; then
+	   #
+	   # If the macro parameter ``version'' is set, honour it.
+	   # A Python shim class, VPy, is used to implement correct version comparisons via
+	   # string expressions, since e.g. a naive textual ">= 2.7.3" won't work for
+	   # Python 2.7.10 (the ".1" being evaluated as less than ".3").
+	   #
+	   if test -n "$1"; then
 		AC_MSG_CHECKING([for a version of Python $1])
-		ac_supports_python_ver=`$PYTHON -c "import sys; \
-			ver = sys.version.split ()[[0]]; \
++                cat << EOF > ax_python_devel_vpy.py
++class VPy:
++    def vtup(self, s):
++        return tuple(map(int, s.strip().replace("rc", ".").split(".")))
++    def __init__(self):
++        import sys
++        self.vpy = tuple(sys.version_info)[[:3]]
++    def __eq__(self, s):
++        return self.vpy == self.vtup(s)
++    def __ne__(self, s):
++        return self.vpy != self.vtup(s)
++    def __lt__(self, s):
++        return self.vpy < self.vtup(s)
++    def __gt__(self, s):
++        return self.vpy > self.vtup(s)
++    def __le__(self, s):
++        return self.vpy <= self.vtup(s)
++    def __ge__(self, s):
++        return self.vpy >= self.vtup(s)
++EOF
++		ac_supports_python_ver=`$PYTHON -c "import ax_python_devel_vpy; \
++                        ver = ax_python_devel_vpy.VPy(); \
 			print (ver $1)"`
+                rm -rf ax_python_devel_vpy*.py* __pycache__/ax_python_devel_vpy*.py*
 		if test "$ac_supports_python_ver" = "True"; then
-		   AC_MSG_RESULT([yes])
+			AC_MSG_RESULT([yes])
 		else
 			AC_MSG_RESULT([no])
-			AC_MSG_ERROR([this package requires Python $1.
+			AC_MSG_WARN([this package requires Python $1.
 If you have it installed, but it isn't the default Python
 interpreter in your system path, please pass the PYTHON_VERSION
 variable to configure. See ``configure --help'' for reference.
