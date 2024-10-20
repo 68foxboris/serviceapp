@@ -229,6 +229,7 @@ int convertToUTF8(const std::string &input_string, const std::string &input_enco
         return 1;
     }
     py_unicode = PyUnicode_AsDecodedObject(py_string, input_encoding.c_str(), "strict");
+
     if (py_unicode == NULL)
     {
         Py_DECREF(py_string);

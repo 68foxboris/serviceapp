@@ -60,9 +60,9 @@ static eServiceAppOptions *g_ServiceAppOptionsServiceGst;
 static eServiceAppOptions *g_ServiceAppOptionsUser;
 
 static const std::string gReplaceServiceMP3Path = eEnv::resolve("$sysconfdir/enigma2/serviceapp_replaceservicemp3");
-static const bool gReplaceServiceMP3 = ( access( gReplaceServiceMP3Path.c_str(), F_OK ) != -1 );
+static const bool gReplaceServiceMP3 = (access(gReplaceServiceMP3Path.c_str(), F_OK) != -1);
 
-static HeaderMap getHttpHeaders(const std::string& path)
+static HeaderMap getHttpHeaders(const std::string &path)
 {
 	HeaderMap headers = getHeaders(path);
 	for (HeaderMap::iterator it(headers.begin()); it != headers.end();)
@@ -86,10 +86,10 @@ static void updatePlayerOptions(IOption &options, const HeaderMap &headers)
 	}
 }
 
-static BasePlayer *createPlayer(const eServiceReference& ref, const HeaderMap &headers)
+static BasePlayer *createPlayer(const eServiceReference &ref, const HeaderMap &headers)
 {
 	BasePlayer *player = NULL;
-	if (ref.type == eServiceFactoryApp::idServiceExtEplayer3 || (ref.type == eServiceFactoryApp::idServiceMP3 && g_playerServiceMP3 == EXTEPLAYER3) )
+	if (ref.type == eServiceFactoryApp::idServiceExtEplayer3 || (ref.type == eServiceFactoryApp::idServiceMP3 && g_playerServiceMP3 == EXTEPLAYER3))
 	{
 		ExtEplayer3Options options;
 		if (g_useUserSettings)
@@ -101,7 +101,7 @@ static BasePlayer *createPlayer(const eServiceReference& ref, const HeaderMap &h
 		updatePlayerOptions(options, headers);
 		player = new ExtEplayer3(options);
 	}
-	else if (ref.type == eServiceFactoryApp::idServiceGstPlayer || (ref.type == eServiceFactoryApp::idServiceMP3 && g_playerServiceMP3 == GSTPLAYER) )
+	else if (ref.type == eServiceFactoryApp::idServiceGstPlayer || (ref.type == eServiceFactoryApp::idServiceMP3 && g_playerServiceMP3 == GSTPLAYER))
 	{
 		GstPlayerOptions options;
 		if (g_useUserSettings)
@@ -313,7 +313,7 @@ void eServiceApp::fillSubservices()
 				ref.setUnsignedData(7, SUBSERVICES_INDEX_START + i);
 				// set parentTransportStreamId, since InfoBarSubservicesSupport
 				// checks this flag when creating subservices menu. If it's available
-				// at least for one subservice then it will allow to add subservices 
+				// at least for one subservice then it will allow to add subservices
 				// to bouquet or favorites, see subserviceSelection.
 				//
 				// If it's not available it will only allow to quickzap subservices and it
@@ -531,7 +531,7 @@ void eServiceApp::pushSubtitles()
 		end_ms = current->second.end_ms;
 		diff_start_ms = start_ms - decoder_ms;
 		diff_end_ms = end_ms - decoder_ms;
-		
+
 		//eDebug("eServiceApp::pushSubtitles - next subtitle: decoder: %d, start: %d, end: %d, duration_ms: %d, diff_start: %d, diff_end: %d : %s",
 		//	decoder_ms, start_ms, end_ms, end_ms - start_ms, diff_start_ms, diff_end_ms, current->second.text.c_str());
 
@@ -609,7 +609,7 @@ void eServiceApp::gotExtPlayerMessage(int message)
 		case PlayerMessage::stop:
 			eDebug("eServiceApp::gotExtPlayerMessage - stop");
 			// evEOF signals that end of file was reached and we
-			// could make operations like seek back or play again, 
+			// could make operations like seek back or play again,
 			// however when player signals stop, process
 			// has already ended, so there is no possibility to do so.
 			// This should be fixed on player's side so it doesn't end
@@ -675,12 +675,10 @@ void eServiceApp::gotExtPlayerMessage(int message)
 
 
 // __iPlayableService
-#if SIGCXX_MAJOR_VERSION == 3
-RESULT eServiceApp::connectEvent(const sigc::slot<void(iPlayableService*,int)>& event, ePtr< eConnection >& connection)
-#elif SIGCXX_MAJOR_VERSION == 2
+#if SIGCXX_MAJOR_VERSION == 2
 RESULT eServiceApp::connectEvent(const sigc::slot2< void, iPlayableService*, int >& event, ePtr< eConnection >& connection)
 #else
-RESULT eServiceApp::connectEvent(const Slot2< void, iPlayableService*, int >& event, ePtr< eConnection >& connection)
+RESULT eServiceApp::connectEvent(const sigc::slot<void(iPlayableService*,int)>& event, ePtr< eConnection >& connection)
 #endif
 {
 	connection = new eConnection((iPlayableService*)this, m_event.connect(event));
@@ -1111,7 +1109,7 @@ RESULT eServiceApp::getSubtitleList(std::vector<struct SubtitleTrack> &subtitlel
 
 	std::string dirname, filename;
 	splitPath(subtitle_path, dirname, filename);
-	// TODO 
+	// TODO
 	//
 	// - try to find out language code from filename if possible
 	// - apply some sort of sorting which would add more relevant subtitles to beginning
@@ -1209,7 +1207,7 @@ int eServiceApp::getInfo(int w)
 	case sVideoWidth: return m_width;
 	case sFrameRate: return m_framerate;
 	case sProgressive: return m_progressive;
-	case sAspect: 
+	case sAspect:
 	{
 		if (m_height <= 0 || m_width <= 0)
 		{
@@ -1323,6 +1321,20 @@ std::string eServiceApp::getInfoString(int w)
 {
 	switch (w)
 	{
+	case sVideoInfo:
+	{
+		char buff[100];
+		snprintf(buff, sizeof(buff), "%d|%d|%d|%d|%d|%d",
+				m_width,
+				m_height,
+				m_framerate,
+				m_progressive,
+				getInfo(sAspect),
+				-1
+				);
+		std::string videoInfo = buff;
+		return videoInfo;
+	}
 	case sProvider:
 		return m_ref.path.find("://") != std::string::npos ? "IPTV" : "FILE";
 	case sServiceref:
@@ -1480,7 +1492,7 @@ eServiceFactoryApp::eServiceFactoryApp()
 		extensions.clear();
 		sc->addServiceFactory(eServiceFactoryApp::idServiceGstPlayer, this, extensions);
 		sc->addServiceFactory(eServiceFactoryApp::idServiceExtEplayer3, this, extensions);
-		
+
 	}
 	m_service_info = new eStaticServiceAppInfo();
 }
@@ -1499,7 +1511,7 @@ eServiceFactoryApp::~eServiceFactoryApp()
 		sc->removeServiceFactory(eServiceFactoryApp::idServiceGstPlayer);
 		sc->removeServiceFactory(eServiceFactoryApp::idServiceExtEplayer3);
 	}
-	
+
 }
 
 
@@ -1535,12 +1547,12 @@ gstplayer_set_setting(PyObject *self, PyObject *args)
 
 	int settingId;
 	char *audioSink, *videoSink;
-	bool subtitlesEnable; 
+	bool subtitlesEnable;
 	long bufferSize, bufferDuration;
 
 	if (!PyArg_ParseTuple(args, "issbll", &settingId, &videoSink, &audioSink, &subtitlesEnable, &bufferSize, &bufferDuration))
 		return NULL;
-	
+
 	GstPlayerOptions *options = NULL;
 	switch (settingId)
 	{
@@ -1649,7 +1661,7 @@ serviceapp_set_setting(PyObject *self, PyObject *args)
 
 	if (!PyArg_ParseTuple(args, "ibbIb", &settingId, &HLSExplorer, &autoSelectStream, &connectionSpeedInKb, &autoTurnOnSubtitles))
 		return NULL;
-	
+
 	eServiceAppOptions *options = NULL;
 	switch (settingId)
 	{
@@ -1683,8 +1695,6 @@ serviceapp_set_setting(PyObject *self, PyObject *args)
 	}
 	return Py_BuildValue("b", ret);
 }
-
-
 
 static PyMethodDef serviceappMethods[] = {
 	{"use_user_settings", use_user_settings, METH_NOARGS,
@@ -1726,10 +1736,9 @@ static PyMethodDef serviceappMethods[] = {
 	 {NULL,NULL,0,NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef moduledef = {
 	PyModuleDef_HEAD_INIT,
-	"serviceapp",        /* m_name */
+	"serviceapp",         /* m_name */
 	"serviceapp",        /* m_doc */
 	-1,                  /* m_size */
 	serviceappMethods,   /* m_methods */
@@ -1738,14 +1747,8 @@ static struct PyModuleDef moduledef = {
 	NULL,                /* m_clear */
 	NULL,                /* m_free */
 };
-#endif
 
-PyMODINIT_FUNC
-#if PY_MAJOR_VERSION >= 3
-PyInit_serviceapp(void)
-#else
-initserviceapp(void)
-#endif
+PyMODINIT_FUNC PyInit_serviceapp(void)
 {
 	g_GstPlayerOptionsServiceMP3 = new GstPlayerOptions();
 	g_GstPlayerOptionsServiceGst = new GstPlayerOptions();
@@ -1762,9 +1765,5 @@ initserviceapp(void)
 
 	SSL_load_error_strings();
 	SSL_library_init();
-#if PY_MAJOR_VERSION >= 3
 	return PyModule_Create(&moduledef);
-#else
-	Py_InitModule("serviceapp", serviceappMethods);
-#endif
 }

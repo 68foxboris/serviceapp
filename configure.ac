@@ -25,7 +25,7 @@ else
     echo "-------------------------------------------"
 fi
 
-AX_CXX_COMPILE_STDCXX_17([ext],[mandatory])
+AX_CXX_COMPILE_STDCXX([17], [ext], [mandatory])
 
 AC_DEFINE([DEBUG])
 
@@ -48,7 +48,7 @@ AC_LINK_IFELSE(
 #elif SIGCXX_MAJOR_VERSION == 2
     RESULT connectEvent(const sigc::slot2<void,iPlayableService*,int> &event, ePtr<eConnection> &connection){return -1;}
 #else
-    RESULT connectEvent(const Slot2<void,iPlayableService*,int> &event, ePtr<eConnection> &connection){return -1;}
+    RESULT connectEvent(const sigc::slot<void,iPlayableService*,int> &event, ePtr<eConnection> &connection){return -1;}
 #endif
     RESULT start(){return -1;}
     RESULT stop(){return -1;}
