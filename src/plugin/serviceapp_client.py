@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from os import remove
-from os.path import isfile
+import os
 
 from enigma import eEnv
 
@@ -23,23 +22,23 @@ _SERVICEMP3_REPLACE_PATH = eEnv.resolve("$sysconfdir/enigma2/serviceapp_replaces
 
 
 def isExtEplayer3Available():
-	return isfile(eEnv.resolve("$bindir/exteplayer3"))
+	return os.path.isfile(eEnv.resolve("$bindir/exteplayer3"))
 
 
 def isGstPlayerAvailable():
-	return isfile(eEnv.resolve("$bindir/gstplayer_gst-1.0"))
+	return os.path.isfile(eEnv.resolve("$bindir/gstplayer_gst-1.0"))
 
 
 def isServiceMP3Replaced():
-	return isfile(_SERVICEMP3_REPLACE_PATH)
+	return os.path.isfile(_SERVICEMP3_REPLACE_PATH)
 
 
 def setServiceMP3Replace(replace):
 	if replace:
 		open(_SERVICEMP3_REPLACE_PATH, "wb").close()
 	else:
-		if isfile(_SERVICEMP3_REPLACE_PATH):
-			remove(_SERVICEMP3_REPLACE_PATH)
+		if os.path.isfile(_SERVICEMP3_REPLACE_PATH):
+			os.remove(_SERVICEMP3_REPLACE_PATH)
 
 
 def setServiceMP3GstPlayer():

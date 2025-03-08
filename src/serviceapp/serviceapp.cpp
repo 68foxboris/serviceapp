@@ -20,6 +20,8 @@
 #include "gstplayer.h"
 #include "exteplayer3.h"
 
+#include <Python.h>
+
 enum
 {
 	SUBSERVICES_INDEX_START = 1,
@@ -58,9 +60,9 @@ static eServiceAppOptions *g_ServiceAppOptionsServiceGst;
 static eServiceAppOptions *g_ServiceAppOptionsUser;
 
 static const std::string gReplaceServiceMP3Path = eEnv::resolve("$sysconfdir/enigma2/serviceapp_replaceservicemp3");
-static const bool gReplaceServiceMP3 = ( access( gReplaceServiceMP3Path.c_str(), F_OK ) != -1 );
+static const bool gReplaceServiceMP3 = (access(gReplaceServiceMP3Path.c_str(), F_OK) != -1);
 
-static HeaderMap getHttpHeaders(const std::string& path)
+static HeaderMap getHttpHeaders(const std::string &path)
 {
 	HeaderMap headers = getHeaders(path);
 	for (HeaderMap::iterator it(headers.begin()); it != headers.end();)
@@ -84,10 +86,10 @@ static void updatePlayerOptions(IOption &options, const HeaderMap &headers)
 	}
 }
 
-static BasePlayer *createPlayer(const eServiceReference& ref, const HeaderMap &headers)
+static BasePlayer *createPlayer(const eServiceReference &ref, const HeaderMap &headers)
 {
 	BasePlayer *player = NULL;
-	if (ref.type == eServiceFactoryApp::idServiceExtEplayer3 || (ref.type == eServiceFactoryApp::idServiceMP3 && g_playerServiceMP3 == EXTEPLAYER3) )
+	if (ref.type == eServiceFactoryApp::idServiceExtEplayer3 || (ref.type == eServiceFactoryApp::idServiceMP3 && g_playerServiceMP3 == EXTEPLAYER3))
 	{
 		ExtEplayer3Options options;
 		if (g_useUserSettings)
@@ -99,7 +101,7 @@ static BasePlayer *createPlayer(const eServiceReference& ref, const HeaderMap &h
 		updatePlayerOptions(options, headers);
 		player = new ExtEplayer3(options);
 	}
-	else if (ref.type == eServiceFactoryApp::idServiceGstPlayer || (ref.type == eServiceFactoryApp::idServiceMP3 && g_playerServiceMP3 == GSTPLAYER) )
+	else if (ref.type == eServiceFactoryApp::idServiceGstPlayer || (ref.type == eServiceFactoryApp::idServiceMP3 && g_playerServiceMP3 == GSTPLAYER))
 	{
 		GstPlayerOptions options;
 		if (g_useUserSettings)
@@ -676,7 +678,7 @@ void eServiceApp::gotExtPlayerMessage(int message)
 #if SIGCXX_MAJOR_VERSION == 2
 RESULT eServiceApp::connectEvent(const sigc::slot2< void, iPlayableService*, int >& event, ePtr< eConnection >& connection)
 #else
-RESULT eServiceApp::connectEvent(const Slot2< void, iPlayableService*, int >& event, ePtr< eConnection >& connection)
+RESULT eServiceApp::connectEvent(const sigc::slot<void(iPlayableService*,int)>& event, ePtr< eConnection >& connection)
 #endif
 {
 	connection = new eConnection((iPlayableService*)this, m_event.connect(event));
@@ -896,7 +898,7 @@ RESULT eServiceApp::selectTrack(unsigned int i)
 	return 0;
 }
 
-RESULT eServiceApp::getTrackInfo(iAudioTrackInfo& trackInfo, unsigned int n)
+RESULT eServiceApp::getTrackInfo(iAudioTrackInfo &trackInfo, unsigned int n)
 {
 	eDebug("eServiceApp::getTrackInfo = %d", n);
 	audioStream track;
@@ -904,9 +906,37 @@ RESULT eServiceApp::getTrackInfo(iAudioTrackInfo& trackInfo, unsigned int n)
 	{
 		return -1;
 	}
-	trackInfo.m_description = track.description;
+
+	std::string desc = track.description;
+
+	std::map<std::string, std::string> audioReplacements = {
+		{"A_", ""},
+		{"EAC3", "AC3+"},
+		{"MPEG/L3", "AAC"},
+		{"IPCM", "AC3"},
+		{"LPCM", "AC3+"},
+		{"AAC_PLUS", "AAC+"},
+		{"AAC_LATM", "AAC"},
+		{"WMA/PRO", "WMA Pro"}};
+
+	if (!desc.empty())
+	{
+		for (auto const &x : audioReplacements)
+		{
+			std::string s = x.first;
+			if (desc.length() >= s.length())
+			{
+				size_t loc = desc.find(s);
+				if (loc != std::string::npos)
+				{
+					desc.replace(loc, s.length(), x.second);
+				}
+			}
+		}
+	}
+
+	trackInfo.m_description = desc;
 	trackInfo.m_language = track.language_code;
-	trackInfo.m_pid = track.id;
 	return 0;
 }
 
@@ -1262,7 +1292,7 @@ int eServiceApp::getInfo(int w)
 			else if (v.description == "V_MPEG4/ISO/AVC") return 1;
 			else if (v.description.find("V_MPEG4") != std::string::npos) return 4;
 			else if (v.description == "V_MPEG1") return 6;
-			else if (v.description == "V_MPEGH/ISO/HEVC") return 7;
+			else if (v.description == "V_HEVC/ISO/MPEGH") return 7;
 			else if (v.description == "V_VP8") return 8;
 			else if (v.description == "V_VP9") return 9;
 
@@ -1280,6 +1310,7 @@ int eServiceApp::getInfo(int w)
 		}
 		return resNA;
 	}
+	case sSID: return m_ref.getData(1);
 	default:
 		return resNA;
 	}
@@ -1288,23 +1319,30 @@ int eServiceApp::getInfo(int w)
 
 std::string eServiceApp::getInfoString(int w)
 {
-	if ( strstr(m_ref.path.c_str(), "://") )
+	switch (w)
 	{
-		switch (w)
-		{
-		case sProvider:
-			return "IPTV";
-		case sServiceref:
-		{
-			eServiceReference ref(m_ref);
-			ref.type = m_ref.type;
-			ref.path.clear();
-			return ref.toString();
-		}
-		default:
-			break;
-		}
+	case sVideoInfo:
+	{
+		char buff[100];
+		snprintf(buff, sizeof(buff), "%d|%d|%d|%d|%d|%d",
+				m_width,
+				m_height,
+				m_framerate,
+				m_progressive,
+				getInfo(sAspect),
+				-1
+				);
+		std::string videoInfo = buff;
+		return videoInfo;
 	}
+	case sProvider:
+		return m_ref.path.find("://") != std::string::npos ? "IPTV" : "FILE";
+	case sServiceref:
+		return m_ref.toString();
+	default:
+		break;
+	}
+
 	if (w < sUser && w > 26 )
 		return "";
 	switch(w)
@@ -1658,8 +1696,6 @@ serviceapp_set_setting(PyObject *self, PyObject *args)
 	return Py_BuildValue("b", ret);
 }
 
-
-
 static PyMethodDef serviceappMethods[] = {
 	{"use_user_settings", use_user_settings, METH_NOARGS,
 	 "user settings will be used for creation of player"},
@@ -1700,10 +1736,20 @@ static PyMethodDef serviceappMethods[] = {
 	 {NULL,NULL,0,NULL}
 };
 
-PyMODINIT_FUNC
-initserviceapp(void)
+static struct PyModuleDef moduledef = {
+	PyModuleDef_HEAD_INIT,
+	"serviceapp",         /* m_name */
+	"serviceapp",        /* m_doc */
+	-1,                  /* m_size */
+	serviceappMethods,   /* m_methods */
+	NULL,                /* m_reload */
+	NULL,                /* m_traverse */
+	NULL,                /* m_clear */
+	NULL,                /* m_free */
+};
+
+PyMODINIT_FUNC PyInit_serviceapp(void)
 {
-	Py_InitModule("serviceapp", serviceappMethods);
 	g_GstPlayerOptionsServiceMP3 = new GstPlayerOptions();
 	g_GstPlayerOptionsServiceGst = new GstPlayerOptions();
 	g_GstPlayerOptionsUser = new GstPlayerOptions();
@@ -1719,4 +1765,5 @@ initserviceapp(void)
 
 	SSL_load_error_strings();
 	SSL_library_init();
+	return PyModule_Create(&moduledef);
 }

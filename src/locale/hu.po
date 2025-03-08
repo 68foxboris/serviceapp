@@ -84,8 +84,7 @@ msgid ""
 "\n"
 "Do you want to restart it now?"
 msgstr ""
-"Az Enigma2 lejátszási rendszer megváltozott, és emiatt újra kell indítani "
-"azt\n"
+"Az Enigma2 lejátszási rendszer megváltozott, és emiatt újra kell indítani azt\n"
 "\n"
 "Újraindítja most?"
 
@@ -135,15 +134,11 @@ msgstr "Jelölje ki a használni kívánt fogadót."
 
 #: ../plugin/plugin.py:247
 msgid "Select the player which will be used for Enigma2 playback."
-msgstr ""
-"Válassza ki azt a lejátszót, amelyet az Enigma2 a lejátszáshoz fog használni."
+msgstr "Válassza ki azt a lejátszót, amelyet az Enigma2 a lejátszáshoz fog használni."
 
 #: ../plugin/plugin.py:250
-msgid ""
-"Select the player which will be used in serviceapp for Enigma2 playback."
-msgstr ""
-"Válassza ki azt a lejátszót, amelyet az Enigma2 a lejátszáshoz a serviceapp-"
-"ban fog használni."
+msgid "Select the player which will be used in serviceapp for Enigma2 playback."
+msgstr "Válassza ki azt a lejátszót, amelyet az Enigma2 a lejátszáshoz a serviceapp-ban fog használni."
 
 #: ../plugin/plugin.py:155 ../plugin/plugin.py:390 ../plugin/plugin.py:406
 #: ../plugin/plugin.py:408 ../plugin/plugin.py:410
@@ -174,31 +169,20 @@ msgid "Set buffer size in kilobytes."
 msgstr "Állítsa be a puffer méretét kilobájtban."
 
 #: ../plugin/plugin.py:223
-msgid ""
-"Set connection speed in kb/s, according to which you want to have streams "
-"auto-selected"
-msgstr ""
-"Állítsa be azt a kapcsolódási sebességet kb/s-ban, amely szerint az "
-"adatfolyamokat a rendszer automatikusan kiválasztja"
+msgid "Set connection speed in kb/s, according to which you want to have streams auto-selected"
+msgstr "Állítsa be azt a kapcsolódási sebességet kb/s-ban, amely szerint az adatfolyamokat a rendszer automatikusan kiválasztja"
 
 #: ../plugin/plugin.py:211
-msgid ""
-"Set which RTMP protocol implementation will be used for playback of RTMP "
-"streams"
-msgstr ""
-"Állítsa be, hogy melyik RTMP protokoll implementációt használja a rendszer "
-"az RTMP-adatfolyamok lejátszására"
+msgid "Set which RTMP protocol implementation will be used for playback of RTMP streams"
+msgstr "Állítsa be, hogy melyik RTMP protokoll implementációt használja a rendszer az RTMP-adatfolyamok lejátszására"
 
 #: ../plugin/plugin.py:182
 msgid "Sink"
 msgstr "Fogadó"
 
 #: ../plugin/plugin.py:209
-msgid ""
-"Software decoder use LPCM for injection (otherwise wav PCM will be used)"
-msgstr ""
-"LPCM injection használata szoftveres dekóderhez (egyébként PCM injection "
-"használat)"
+msgid "Software decoder use LPCM for injection (otherwise wav PCM will be used)"
+msgstr "LPCM injection használata szoftveres dekóderhez (egyébként PCM injection használat)"
 
 #: ../plugin/plugin.py:206
 msgid "Stereo downmix"
@@ -242,23 +226,15 @@ msgstr "Itt kapcsolhatja be a WMA1, WMA2, WMA/PRO szoftverdekódolást."
 
 #: ../plugin/plugin.py:221
 msgid "Turn on auto-selection of streams according to set Connection speed."
-msgstr ""
-"A kapcsolat sebességének beállítása szerint automatikusan történik az "
-"adatfolyam (stream) kiválasztása."
+msgstr "A kapcsolat sebességének beállítása szerint automatikusan történik az adatfolyam (stream) kiválasztása."
 
 #: ../plugin/plugin.py:207
 msgid "Turn on downmix to stereo, when software decoding is in use"
-msgstr ""
-"Sztereó lekeverés bekapcsolása, ha valamilyen szoftverdekódolás van "
-"használatban"
+msgstr "Sztereó lekeverés bekapcsolása, ha valamilyen szoftverdekódolás van használatban"
 
 #: ../plugin/plugin.py:219
-msgid ""
-"Turn on explorer to retrieve different quality streams from HLS variant "
-"playlist and select them via subservices."
-msgstr ""
-"Ha különböző minőségű adatfolyamokat (stream) szeretne megjeleníteni, akkor "
-"kapcsolja be a HLS Explorert."
+msgid "Turn on explorer to retrieve different quality streams from HLS variant playlist and select them via subservices."
+msgstr "Ha különböző minőségű adatfolyamokat (stream) szeretne megjeleníteni, akkor kapcsolja be a HLS Explorert."
 
 #: ../plugin/plugin.py:185
 msgid "Turn on the embedded subtitles support."
