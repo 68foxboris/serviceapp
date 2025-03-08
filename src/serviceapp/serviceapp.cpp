@@ -1173,7 +1173,6 @@ int eServiceApp::getInfo(int w)
 {
 	switch (w)
 	{
-	case sServiceref: return m_ref;
 	case sVideoHeight: return m_height;
 	case sVideoWidth: return m_width;
 	case sFrameRate: return m_framerate;
@@ -1198,6 +1197,7 @@ int eServiceApp::getInfo(int w)
 		}
 		return 2;
 	}
+	case sServiceref:
 	case sTagTitle:
 	case sTagArtist:
 	case sTagAlbum:
